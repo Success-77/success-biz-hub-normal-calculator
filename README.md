@@ -1,2 +1,2 @@
-# success-biz-hub-normal-calculator
-A calculator for normal data prices
+# master-digital-data-calc
+A little project to support a data reselling business
