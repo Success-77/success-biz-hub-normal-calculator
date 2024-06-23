@@ -181,5 +181,6 @@
 
   .payment-details {
     width: 100%;
+    font-size: smaller;
   }
 }
