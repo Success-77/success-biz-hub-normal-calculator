@@ -1,0 +1,33 @@
+.navbar {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  background-color: transparent;
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem 3rem;
+  box-shadow: 0 4px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 6px 0 rgba(0, 0, 0, 0.19);
+}
+
+.navbar nav {
+  width: 30%;
+}
+.navbar nav ul {
+  list-style-type: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+.brand-name h3 {
+  font-size: medium;
+}
+.list-item Link {
+  text-decoration: none;
+  color: black;
+}
+
+.list-item Link:hover {
+  color: powderblue;
+  transition: 0.5s;
+}
