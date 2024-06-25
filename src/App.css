@@ -1,12 +1,74 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Yanone+Kaffeesatz:wght@200..700&display=swap");
-
 .App {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: "Montserrat", sans-serif;
 }
 
-.Home {
-  margin: auto;
-  width: 60%;
+.tabs {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.tab-button {
+  width: 20%;
+  padding: 0.5rem 0;
+  border-radius: 5px;
+  background-color: #282c34;
+  color: white;
+  font-size: medium;
+  margin: 0 2rem;
+  transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+
+.tab-button:hover {
+  background-color: transparent;
+  border: 2px solid #282c34;
+  color: black;
+  font-weight: 600;
+}
+
+.tab-clicked {
+  height: 8rem; /* Initial height */
+  margin: 0;
+  transition: height 2s ease-in-out, margin 2s ease-in-out; /* Smooth transition for height and margin */
+}
+
+.move-tab-content {
+  margin: 0;
+}
+
+.active {
+  background-color: transparent;
+  border: 2px solid black;
+  color: black;
+  font-weight: 600;
+}
+
+@media screen and (max-width: 768px) {
+  .App {
+    width: 95%;
+  }
+
+  .tab-button {
+    width: 37%;
+    border: none;
+    font-size: medium;
+    margin: 0 1rem;
+  }
+
+  .tab-clicked {
+    margin: 0 auto;
+    transition: margin 2s ease-in-out;
+  }
+
+  .active {
+    background-color: transparent;
+    border: 2px solid black;
+    color: black;
+    font-weight: 600;
+  }
 }
