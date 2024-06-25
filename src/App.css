@@ -60,11 +60,6 @@
     margin: 0 1rem;
   }
 
-  .tab-clicked {
-    margin: 0 auto;
-    transition: margin 2s ease-in-out;
-  }
-
   .active {
     background-color: transparent;
     border: 2px solid black;
