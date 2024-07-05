@@ -7,11 +7,7 @@ import {
 } from "../../shared/utilities/formatters";
 import PaymentDetails from "../../shared/components/PaymentDetails";
 import AllInput from "./AllInput";
-
-const serverDetails = {
-  number: "0249116309",
-  momoName: "Abdul Rahman Benyi",
-};
+import { serverDetails } from "../../shared/utilities/payment";
 
 const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
   const [mtnInputValue, setMTNInputValue] = useState("");
@@ -77,7 +73,7 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
     const vodaPriceList = amounts(vodaPrices, vodaValues);
     const allPrices = [...mtnPriceList, ...atPriceList, ...vodaPriceList];
 
-    const plainTextLines = plainTextFormat(packs, allPrices);
+    const plainTextLines = plainTextFormat(packs, allPrices, serverDetails);
     const plainText = plainTextLines.join("\n");
 
     navigator.clipboard
@@ -156,6 +152,8 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
     output.push(`\n*Total: GH₵${total.toFixed(2)}*`);
     const today = new Date().toLocaleDateString();
     output.push(`\n*Orders placed on ${today}*`);
+    output.push(`\n*${serverDetails.number}*`);
+    output.push(`*[${serverDetails.momoName}]*\n`);
     return output;
   }
 

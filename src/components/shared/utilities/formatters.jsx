@@ -10,9 +10,8 @@ export function replaceUndefinedWithQuestionMark(prices) {
   return prices.map((price) => (price === undefined ? "?" : price));
 }
 
-export function plainTextFormat(packages, prices, network) {
+export function plainTextFormat(packages, prices, serverDetails) {
   const output = [];
-  output.push(`*${network}*\n`);
   output.push("*PACKS*\t\t*PRICES*");
 
   const copiedPrices = prices.slice();
@@ -36,5 +35,7 @@ export function plainTextFormat(packages, prices, network) {
   output.push(`\n*Total: GH₵${total.toFixed(2)}*`);
   const today = new Date().toLocaleDateString();
   output.push(`\n*Orders placed on ${today}*`);
+  output.push(`\n*${serverDetails.number}*`);
+  output.push(`*[${serverDetails.momoName}]*\n`);
   return output;
 }
