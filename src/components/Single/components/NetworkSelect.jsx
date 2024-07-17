@@ -17,6 +17,7 @@ const NetworkSelect = ({ selectedNetwork, handleNetworkChange }) => {
           <option value="MTN">MTN</option>
           <option value="AirtelTigo">AirtelTigo</option>
           <option value="Vodafone">Vodafone</option>
+          <option value="AFA">AFA Registration</option>
         </select>
       </div>
     </div>

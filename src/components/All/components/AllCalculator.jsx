@@ -4,10 +4,14 @@ import {
   gigFormatter,
   amounts,
   replaceUndefinedWithQuestionMark,
+  AFAPlainTextFormat,
 } from "../../shared/utilities/formatters";
 import PaymentDetails from "../../shared/components/PaymentDetails";
 import AllInput from "./AllInput";
+import AFAInput from "../../Single/components/AFAInput";
 import { serverDetails } from "../../shared/utilities/payment";
+import AFARegistrationFormat from "../../shared/components/AFARegistrationFormat";
+import { afaPrice } from "../../shared/utilities/Prices";
 
 const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
   const [mtnInputValue, setMTNInputValue] = useState("");
@@ -18,6 +22,8 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
   const [vodaInputError, setVodaInputError] = useState("");
   const [tableContent, setTableContent] = useState("");
   const [isCopied, setIsCopied] = useState(false);
+  const [inputError, setInputError] = useState("");
+  const [afaInputValue, setAfaInputValue] = useState("");
 
   useEffect(() => {
     const parseInputValues = (input) =>
@@ -25,6 +31,7 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
     const mtnValues = parseInputValues(mtnInputValue);
     const atValues = parseInputValues(atInputValue);
     const vodaValues = parseInputValues(vodaInputValue);
+    const afaTotalAmount = afaInputValue * afaPrice;
 
     const combinedValues = [...mtnValues, ...atValues, ...vodaValues];
     const packs = gigFormatter(combinedValues);
@@ -33,7 +40,7 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
     const vodaPriceList = amounts(vodaPrices, vodaValues);
     const allPrices = [...mtnPriceList, ...atPriceList, ...vodaPriceList];
 
-    const formattedTable = tabularFormat(packs, allPrices);
+    const formattedTable = tabularFormat(packs, allPrices, afaTotalAmount);
     setTableContent(formattedTable);
   }, [
     mtnInputValue,
@@ -42,6 +49,7 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
     mtnPrices,
     atPrices,
     vodaPrices,
+    afaInputValue,
   ]);
 
   const handleInputChange = (value, setValue, setError) => {
@@ -52,6 +60,18 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
       setError("");
     } else {
       setError("Invalid input!");
+    }
+  };
+
+  const handleAfaInputChange = (event) => {
+    const value = event.target.value;
+    const validInputRegex = /^[0-9]*$/;
+
+    if (validInputRegex.test(value)) {
+      setAfaInputValue(value);
+      setInputError("");
+    } else {
+      setInputError("Invalid input!");
     }
   };
 
@@ -73,7 +93,13 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
     const vodaPriceList = amounts(vodaPrices, vodaValues);
     const allPrices = [...mtnPriceList, ...atPriceList, ...vodaPriceList];
 
-    const plainTextLines = plainTextFormat(packs, allPrices, serverDetails);
+    const plainTextLines = plainTextFormat(
+      packs,
+      allPrices,
+      serverDetails,
+      AFAPlainTextFormat(afaInputValue),
+      afaInputValue * afaPrice
+    );
     const plainText = plainTextLines.join("\n");
 
     navigator.clipboard
@@ -87,7 +113,7 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
       .catch((err) => console.error("Failed to copy:", err));
   };
 
-  const tabularFormat = (packages, allPrices) => {
+  const tabularFormat = (packages, allPrices, afaTotalAmount) => {
     const replacedPrices = replaceUndefinedWithQuestionMark(allPrices.slice());
     const numericPrices = replacedPrices.map((price) =>
       typeof price === "number" ? price : 0
@@ -118,16 +144,25 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
             </p>
           );
         })}
+        <AFARegistrationFormat totalRegistration={afaInputValue} />
         <p className="totalAmt">
           Total: GH&#8373;
-          {numericPrices.reduce((acc, cur) => acc + cur, 0).toFixed(2)}
+          {(
+            numericPrices.reduce((acc, cur) => acc + cur, 0) + afaTotalAmount
+          ).toFixed(2)}
         </p>
         <p>Orders placed on {new Date().toLocaleDateString("en-GB")}</p>
       </div>
     );
   };
 
-  function plainTextFormat(packages, allPrices) {
+  function plainTextFormat(
+    packages,
+    allPrices,
+    serverDetails,
+    afaPlainTextFormat,
+    afaTotalAmount
+  ) {
     const output = [];
     output.push("*PACKS*\t\t*PRICES*");
 
@@ -148,8 +183,11 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
       line += ` ${priceStr}`;
       output.push(line);
     }
+    output.push("\n-------------------------");
+    output.push(afaPlainTextFormat.join("\n"));
+    output.push("-------------------------");
     const total = copiedPrices.reduce((acc, curr) => acc + (curr || 0), 0);
-    output.push(`\n*Total: GH₵${total.toFixed(2)}*`);
+    output.push(`\n*Overall Total: GH₵${(total + afaTotalAmount).toFixed(2)}*`);
     const today = new Date().toLocaleDateString();
     output.push(`\n*Orders placed on ${today}*`);
     output.push(`\n*${serverDetails.number}*`);
@@ -200,6 +238,12 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
                 errorMessage={vodaInputError}
                 label="Enter Vodafone Packages"
               />
+              <AFAInput
+                inputValue={afaInputValue}
+                handleInputChange={handleAfaInputChange}
+                handleInputBlur={() => handleInputBlur(setInputError)}
+                inputError={inputError}
+              />
             </div>
           </div>
 
@@ -211,7 +255,7 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
                 <span>Copy</span>
               </button>
             )}
-            {isCopied && <p className="copied">copied!</p>}
+            {isCopied && <p className="copied">Copied!</p>}
           </div>
         </div>
       </div>

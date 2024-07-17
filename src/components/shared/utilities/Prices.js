@@ -52,3 +52,5 @@ export const vodaPrices = {
   40: 170,
   50: 205,
 };
+
+export const afaPrice = 3.5;

@@ -1,3 +1,5 @@
+import { afaPrice } from "./Prices";
+
 export function gigFormatter(packages) {
   return packages.map((pack) => pack + "GB");
 }
@@ -39,3 +41,12 @@ export function plainTextFormat(packages, prices, serverDetails) {
   output.push(`*[${serverDetails.momoName}]*\n`);
   return output;
 }
+
+export const AFAPlainTextFormat = (totalRegistrations) => {
+  const output = [];
+  output.push("*AFA Registrations*");
+  output.push(`\n*Total Registration(s): ${totalRegistrations}*`);
+  output.push(`*Amount Per Reg.: GH₵3.5*`);
+  output.push(`\n*Total Amount: GH₵${totalRegistrations * afaPrice}*`);
+  return output;
+};
