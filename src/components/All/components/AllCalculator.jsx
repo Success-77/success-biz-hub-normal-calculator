@@ -1,60 +1,117 @@
 import React, { useState, useEffect } from "react";
-import copyIcon from "../../../assets/images/copy.png";
+import AllInput from "./AllInput";
+import AFAInput from "./AFAInput";
+import TabularFormat from "./TabularFormat";
+import PaymentDetails from "../../shared/components/PaymentDetails";
+import { serverDetails } from "../../shared/utilities/payment";
+import { afaPrice } from "../../shared/utilities/Prices";
+import NetworkSelect from "./SelectNetworks";
 import {
   gigFormatter,
   amounts,
-  replaceUndefinedWithQuestionMark,
   AFAPlainTextFormat,
+  plainTextFormat,
 } from "../../shared/utilities/formatters";
-import PaymentDetails from "../../shared/components/PaymentDetails";
-import AllInput from "./AllInput";
-import AFAInput from "../../Single/components/AFAInput";
-import { serverDetails } from "../../shared/utilities/payment";
-import AFARegistrationFormat from "../../shared/components/AFARegistrationFormat";
-import { afaPrice } from "../../shared/utilities/Prices";
+import "./AllCalculator.css";
+import copyIcon from "../../../assets/images/copy.png";
 
-const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
+const AllCalculator = ({
+  mtnPrices,
+  mtnExpressPrices,
+  atPrices,
+  vodaPrices,
+}) => {
   const [mtnInputValue, setMTNInputValue] = useState("");
+  const [mtnExpressInputValue, setMTNExpressInputValue] = useState("");
   const [atInputValue, setATInputValue] = useState("");
   const [vodaInputValue, setVodaInputValue] = useState("");
   const [mtnInputError, setMTNInputError] = useState("");
+  const [mtnExpressInputError, setMTNExpressInputError] = useState("");
   const [atInputError, setATInputError] = useState("");
   const [vodaInputError, setVodaInputError] = useState("");
   const [tableContent, setTableContent] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [inputError, setInputError] = useState("");
   const [afaInputValue, setAfaInputValue] = useState("");
+  const [selectedNetwork, setSelectedNetwork] = useState(["MTN Instant"]); // Default selected network
+
+  const handleNetworkChange = (selected) => {
+    setSelectedNetwork(selected);
+  };
 
   useEffect(() => {
     const parseInputValues = (input) =>
       input.split(/[\s+]+/).map((value) => value.trim());
-    const mtnValues = parseInputValues(mtnInputValue);
-    const atValues = parseInputValues(atInputValue);
-    const vodaValues = parseInputValues(vodaInputValue);
-    const afaTotalAmount = afaInputValue * afaPrice;
 
-    const combinedValues = [...mtnValues, ...atValues, ...vodaValues];
+    const mtnValues = selectedNetwork.includes("MTN Instant")
+      ? parseInputValues(mtnInputValue)
+      : [];
+    const mtnExpressValues = selectedNetwork.includes("MTN Express")
+      ? parseInputValues(mtnExpressInputValue)
+      : [];
+    const atValues = selectedNetwork.includes("AirtelTigo")
+      ? parseInputValues(atInputValue)
+      : [];
+    const vodaValues = selectedNetwork.includes("Vodafone")
+      ? parseInputValues(vodaInputValue)
+      : [];
+    const afaTotalAmount = selectedNetwork.includes("AFA")
+      ? afaInputValue * afaPrice
+      : 0;
+
+    const combinedValues = [
+      ...mtnValues,
+      ...mtnExpressValues,
+      ...atValues,
+      ...vodaValues,
+    ];
     const packs = gigFormatter(combinedValues);
-    const mtnPriceList = amounts(mtnPrices, mtnValues);
-    const atPriceList = amounts(atPrices, atValues);
-    const vodaPriceList = amounts(vodaPrices, vodaValues);
-    const allPrices = [...mtnPriceList, ...atPriceList, ...vodaPriceList];
 
-    const formattedTable = tabularFormat(packs, allPrices, afaTotalAmount);
+    const mtnPriceList = selectedNetwork.includes("MTN Instant")
+      ? amounts(mtnPrices, mtnValues)
+      : [];
+    const mtnExpressPriceList = selectedNetwork.includes("MTN Express")
+      ? amounts(mtnExpressPrices, mtnExpressValues)
+      : [];
+    const atPriceList = selectedNetwork.includes("AirtelTigo")
+      ? amounts(atPrices, atValues)
+      : [];
+    const vodaPriceList = selectedNetwork.includes("Vodafone")
+      ? amounts(vodaPrices, vodaValues)
+      : [];
+
+    const allPrices = [
+      ...mtnPriceList,
+      ...mtnExpressPriceList,
+      ...atPriceList,
+      ...vodaPriceList,
+    ];
+
+    const formattedTable = (
+      <TabularFormat
+        packages={packs}
+        allPrices={allPrices}
+        afaTotalAmount={afaTotalAmount}
+        afaInputValue={afaInputValue}
+        selectedNetwork={selectedNetwork}
+      />
+    );
     setTableContent(formattedTable);
   }, [
     mtnInputValue,
+    mtnExpressInputValue,
     atInputValue,
     vodaInputValue,
     mtnPrices,
+    mtnExpressPrices,
     atPrices,
     vodaPrices,
     afaInputValue,
+    selectedNetwork,
   ]);
 
   const handleInputChange = (value, setValue, setError) => {
     const validInputRegex = /^[0-9+\s]*$/;
-
     if (validInputRegex.test(value)) {
       setValue(value);
       setError("");
@@ -66,7 +123,6 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
   const handleAfaInputChange = (event) => {
     const value = event.target.value;
     const validInputRegex = /^[0-9]*$/;
-
     if (validInputRegex.test(value)) {
       setAfaInputValue(value);
       setInputError("");
@@ -82,23 +138,59 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
   const handleCopyToClipboard = () => {
     const parseInputValues = (input) =>
       input.split(/[\s+]+/).map((value) => value.trim());
-    const mtnValues = parseInputValues(mtnInputValue);
-    const atValues = parseInputValues(atInputValue);
-    const vodaValues = parseInputValues(vodaInputValue);
 
-    const combinedValues = [...mtnValues, ...atValues, ...vodaValues];
+    const mtnValues = selectedNetwork.includes("MTN Instant")
+      ? parseInputValues(mtnInputValue)
+      : [];
+    const mtnExpressValues = selectedNetwork.includes("MTN Express")
+      ? parseInputValues(mtnExpressInputValue)
+      : [];
+    const atValues = selectedNetwork.includes("AirtelTigo")
+      ? parseInputValues(atInputValue)
+      : [];
+    const vodaValues = selectedNetwork.includes("Vodafone")
+      ? parseInputValues(vodaInputValue)
+      : [];
+    const afaTotalAmount = selectedNetwork.includes("AFA")
+      ? afaInputValue * afaPrice
+      : 0;
+
+    const combinedValues = [
+      ...mtnValues,
+      ...mtnExpressValues,
+      ...atValues,
+      ...vodaValues,
+    ];
     const packs = gigFormatter(combinedValues);
-    const mtnPriceList = amounts(mtnPrices, mtnValues);
-    const atPriceList = amounts(atPrices, atValues);
-    const vodaPriceList = amounts(vodaPrices, vodaValues);
-    const allPrices = [...mtnPriceList, ...atPriceList, ...vodaPriceList];
+
+    const mtnPriceList = selectedNetwork.includes("MTN Instant")
+      ? amounts(mtnPrices, mtnValues)
+      : [];
+    const mtnExpressPriceList = selectedNetwork.includes("MTN Express")
+      ? amounts(mtnExpressPrices, mtnExpressValues)
+      : [];
+    const atPriceList = selectedNetwork.includes("AirtelTigo")
+      ? amounts(atPrices, atValues)
+      : [];
+    const vodaPriceList = selectedNetwork.includes("Vodafone")
+      ? amounts(vodaPrices, vodaValues)
+      : [];
+
+    const allPrices = [
+      ...mtnPriceList,
+      ...mtnExpressPriceList,
+      ...atPriceList,
+      ...vodaPriceList,
+    ];
 
     const plainTextLines = plainTextFormat(
       packs,
       allPrices,
       serverDetails,
-      AFAPlainTextFormat(afaInputValue),
-      afaInputValue * afaPrice
+      selectedNetwork.includes("AFA")
+        ? AFAPlainTextFormat(afaInputValue)
+        : null,
+      selectedNetwork.includes("AFA") ? afaTotalAmount : 0
     );
     const plainText = plainTextLines.join("\n");
 
@@ -113,137 +205,92 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
       .catch((err) => console.error("Failed to copy:", err));
   };
 
-  const tabularFormat = (packages, allPrices, afaTotalAmount) => {
-    const replacedPrices = replaceUndefinedWithQuestionMark(allPrices.slice());
-    const numericPrices = replacedPrices.map((price) =>
-      typeof price === "number" ? price : 0
-    );
-
-    return (
-      <div>
-        <h4 className="sales-header">
-          <span>Packs</span>
-          <span>Prices</span>
-        </h4>
-        {packages.map((pack, index) => {
-          const packLen = pack.length;
-          const priceLen = String(numericPrices[index]).length;
-          const indexLen = String(index + 1).length;
-          const totalLen = 20;
-          const dotsLen = totalLen - (packLen + priceLen + indexLen + 5);
-
-          let dots = "";
-          for (let i = 0; i < dotsLen; i++) {
-            dots += ".";
-          }
-
-          return (
-            <p key={index}>
-              {index + 1}. {pack} {dots}{" "}
-              {numericPrices[index] === 0 ? "?" : numericPrices[index]}
-            </p>
-          );
-        })}
-        <AFARegistrationFormat totalRegistration={afaInputValue} />
-        <p className="totalAmt">
-          Total: GH&#8373;
-          {(
-            numericPrices.reduce((acc, cur) => acc + cur, 0) + afaTotalAmount
-          ).toFixed(2)}
-        </p>
-        <p>Orders placed on {new Date().toLocaleDateString("en-GB")}</p>
-      </div>
-    );
-  };
-
-  function plainTextFormat(
-    packages,
-    allPrices,
-    serverDetails,
-    afaPlainTextFormat,
-    afaTotalAmount
-  ) {
-    const output = [];
-    output.push("*PACKS*\t\t*PRICES*");
-
-    const copiedPrices = allPrices.slice();
-
-    for (let i = 0; i < packages.length; i++) {
-      const pack = packages[i];
-      const price = copiedPrices[i];
-      const packLen = pack.length;
-      const priceStr = price !== undefined ? price.toString() : "?";
-      const priceLen = priceStr.length;
-      const middleLen =
-        30 - (packLen + 1 + (priceLen + 1) + (i.toString().length + 2));
-      let line = `${i + 1}. ${pack}`;
-      for (let j = 0; j < middleLen; j++) {
-        line += ".";
-      }
-      line += ` ${priceStr}`;
-      output.push(line);
-    }
-    output.push("\n-------------------------");
-    output.push(afaPlainTextFormat.join("\n"));
-    output.push("-------------------------");
-    const total = copiedPrices.reduce((acc, curr) => acc + (curr || 0), 0);
-    output.push(`\n*Overall Total: GH₵${(total + afaTotalAmount).toFixed(2)}*`);
-    const today = new Date().toLocaleDateString();
-    output.push(`\n*Orders placed on ${today}*`);
-    output.push(`\n*${serverDetails.number}*`);
-    output.push(`*[${serverDetails.momoName}]*\n`);
-    return output;
-  }
-
   return (
     <div className="main-container">
       <div className="packs-prices">
         <div className="form">
           <div className="form-container">
+            <NetworkSelect
+              selectedNetwork={selectedNetwork}
+              handleNetworkChange={handleNetworkChange}
+            />
             <div className="input-sales">
-              <p className="small-text guide">
-                Enter packages separating each with a space or the plus sign [ +
-                ]
-              </p>
-              <AllInput
-                placeholder="10 + 7 9 + 6 4"
-                id="mtnInput"
-                value={mtnInputValue}
-                onChange={(value) =>
-                  handleInputChange(value, setMTNInputValue, setMTNInputError)
-                }
-                onBlur={() => handleInputBlur(setMTNInputError)}
-                errorMessage={mtnInputError}
-                label="Enter MTN Packages"
-              />
-              <AllInput
-                placeholder="10 + 7 9 + 6 4"
-                id="atInput"
-                value={atInputValue}
-                onChange={(value) =>
-                  handleInputChange(value, setATInputValue, setATInputError)
-                }
-                onBlur={() => handleInputBlur(setATInputError)}
-                errorMessage={atInputError}
-                label="Enter AT Packages"
-              />
-              <AllInput
-                placeholder="10 + 7 9 + 6 4"
-                id="vodaInput"
-                value={vodaInputValue}
-                onChange={(value) =>
-                  handleInputChange(value, setVodaInputValue, setVodaInputError)
-                }
-                onBlur={() => handleInputBlur(setVodaInputError)}
-                errorMessage={vodaInputError}
-                label="Enter Vodafone Packages"
-              />
-              <AFAInput
-                inputValue={afaInputValue}
-                handleInputChange={handleAfaInputChange}
-                handleInputBlur={() => handleInputBlur(setInputError)}
-                inputError={inputError}
-              />
+              {!(
+                selectedNetwork.length === 1 && selectedNetwork.includes("AFA")
+              ) && (
+                <p className="small-text guide">
+                  Enter packages separating each with a space or the plus sign [
+                  + ]
+                </p>
+              )}
+              {selectedNetwork.includes("MTN Instant") && (
+                <AllInput
+                  placeholder="10 + 7 9 + 6 4"
+                  id="mtnInput"
+                  value={mtnInputValue}
+                  onChange={(value) =>
+                    handleInputChange(value, setMTNInputValue, setMTNInputError)
+                  }
+                  onBlur={() => handleInputBlur(setMTNInputError)}
+                  errorMessage={mtnInputError}
+                  label="Enter MTN Packages"
+                />
+              )}
+              {selectedNetwork.includes("MTN Express") && (
+                <AllInput
+                  placeholder="10 + 7 9 + 6 4"
+                  id="mtnExpressInput"
+                  value={mtnExpressInputValue}
+                  onChange={(value) =>
+                    handleInputChange(
+                      value,
+                      setMTNExpressInputValue,
+                      setMTNExpressInputError
+                    )
+                  }
+                  onBlur={() => handleInputBlur(setMTNExpressInputError)}
+                  errorMessage={mtnExpressInputError}
+                  label="Enter MTN Express Packages"
+                />
+              )}
+              {selectedNetwork.includes("AirtelTigo") && (
+                <AllInput
+                  placeholder="10 + 7 9 + 6 4"
+                  id="atInput"
+                  value={atInputValue}
+                  onChange={(value) =>
+                    handleInputChange(value, setATInputValue, setATInputError)
+                  }
+                  onBlur={() => handleInputBlur(setATInputError)}
+                  errorMessage={atInputError}
+                  label="Enter AirtelTigo Packages"
+                />
+              )}
+              {selectedNetwork.includes("Vodafone") && (
+                <AllInput
+                  placeholder="10 + 7 9 + 6 4"
+                  id="vodaInput"
+                  value={vodaInputValue}
+                  onChange={(value) =>
+                    handleInputChange(
+                      value,
+                      setVodaInputValue,
+                      setVodaInputError
+                    )
+                  }
+                  onBlur={() => handleInputBlur(setVodaInputError)}
+                  errorMessage={vodaInputError}
+                  label="Enter Vodafone Packages"
+                />
+              )}
+              {selectedNetwork.includes("AFA") && (
+                <AFAInput
+                  inputValue={afaInputValue}
+                  handleInputChange={handleAfaInputChange}
+                  handleInputBlur={() => handleInputBlur(setInputError)}
+                  inputError={inputError}
+                />
+              )}
             </div>
           </div>
 
@@ -258,8 +305,8 @@ const AllCalculator = ({ mtnPrices, atPrices, vodaPrices }) => {
             {isCopied && <p className="copied">Copied!</p>}
           </div>
         </div>
+        <PaymentDetails serverDetails={serverDetails} />
       </div>
-      <PaymentDetails serverDetails={serverDetails} />
     </div>
   );
 };
