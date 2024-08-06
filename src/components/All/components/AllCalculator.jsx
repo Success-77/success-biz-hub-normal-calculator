@@ -183,15 +183,20 @@ const AllCalculator = ({
       ...vodaPriceList,
     ];
 
+    const afaDetails = [
+      `*Total Registration(s): ${afaInputValue}*`,
+      `*Amount Per Reg.: GH₵${afaPrice}*`,
+      `*Total Amount: GH₵${(afaInputValue * afaPrice).toFixed(2)}*`,
+    ];
+
     const plainTextLines = plainTextFormat(
       packs,
       allPrices,
-      serverDetails,
-      selectedNetwork.includes("AFA")
-        ? AFAPlainTextFormat(afaInputValue)
-        : null,
-      selectedNetwork.includes("AFA") ? afaTotalAmount : 0
+      afaDetails,
+      afaTotalAmount,
+      selectedNetwork
     );
+
     const plainText = plainTextLines.join("\n");
 
     navigator.clipboard
