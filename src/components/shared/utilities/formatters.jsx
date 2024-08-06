@@ -12,29 +12,50 @@ export function replaceUndefinedWithQuestionMark(prices) {
   return prices.map((price) => (price === undefined ? "?" : price));
 }
 
-export function plainTextFormat(packages, prices, serverDetails) {
+export function plainTextFormat(
+  packages,
+  prices,
+  serverDetails,
+  selectedNetwork,
+  afaInputValue,
+  afaTotalAmount
+) {
   const output = [];
-  output.push("*PACKS*\t\t*PRICES*");
+  if (selectedNetwork.includes("AFA") && selectedNetwork.length === 1) {
+    output.push(AFAPlainTextFormat(afaInputValue));
+  } else {
+    output.push("*PACKS*\t\t*PRICES*");
 
-  const copiedPrices = prices.slice();
+    const copiedPrices = prices.slice();
 
-  for (let i = 0; i < packages.length; i++) {
-    const pack = packages[i];
-    const price = copiedPrices[i];
-    const packLen = pack.length;
-    const priceStr = price !== undefined ? price.toString() : "?";
-    const priceLen = priceStr.length;
-    const middleLen =
-      30 - (packLen + 1 + (priceLen + 1) + (i.toString().length + 2));
-    let line = `${i + 1}. ${pack}`;
-    for (let j = 0; j < middleLen; j++) {
-      line += ".";
+    for (let i = 0; i < packages.length; i++) {
+      const pack = packages[i];
+      const price = copiedPrices[i];
+      const packLen = pack.length;
+      const priceStr = price !== undefined ? price.toString() : "?";
+      const priceLen = priceStr.length;
+      const middleLen =
+        30 - (packLen + 1 + (priceLen + 1) + (i.toString().length + 2));
+      let line = `${i + 1}. ${pack}`;
+      for (let j = 0; j < middleLen; j++) {
+        line += ".";
+      }
+      line += ` ${priceStr}`;
+      output.push(line);
     }
-    line += ` ${priceStr}`;
-    output.push(line);
+    const total = copiedPrices.reduce((acc, curr) => acc + (curr || 0), 0);
+
+    if (selectedNetwork.includes("AFA")) {
+      output.push("\n-------------------------");
+      output.push(AFAPlainTextFormat(afaInputValue).join("\n"));
+      output.push("-------------------------");
+    }
+    output.push(
+      `\n*Total: GH₵${
+        afaTotalAmount ? (total + afaTotalAmount).toFixed(2) : total.toFixed(2)
+      }*`
+    );
   }
-  const total = copiedPrices.reduce((acc, curr) => acc + (curr || 0), 0);
-  output.push(`\n*Total: GH₵${total.toFixed(2)}*`);
   const today = new Date().toLocaleDateString();
   output.push(`\n*Orders placed on ${today}*`);
   output.push(`\n*${serverDetails.number}*`);
