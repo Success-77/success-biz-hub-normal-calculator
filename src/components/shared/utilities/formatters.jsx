@@ -67,7 +67,7 @@ export const AFAPlainTextFormat = (totalRegistrations) => {
   const output = [];
   output.push("*AFA Registrations*");
   output.push(`\n*Total Registration(s): ${totalRegistrations}*`);
-  output.push(`*Amount Per Reg.: GH₵3.5*`);
+  output.push(`*Amount Per Reg.: ${afaPrice}*`);
   output.push(`\n*Total Amount: GH₵${totalRegistrations * afaPrice}*`);
   return output;
 };
