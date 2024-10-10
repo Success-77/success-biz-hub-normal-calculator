@@ -33,7 +33,7 @@ const AllCalculator = ({
   const [isCopied, setIsCopied] = useState(false);
   const [inputError, setInputError] = useState("");
   const [afaInputValue, setAfaInputValue] = useState("");
-  const [selectedNetwork, setSelectedNetwork] = useState(["MTN Aviator"]); // Default selected network
+  const [selectedNetwork, setSelectedNetwork] = useState(["MTN Normal"]); // Default selected network
 
   const handleNetworkChange = (selected) => {
     setSelectedNetwork(selected);
@@ -43,7 +43,7 @@ const AllCalculator = ({
     const parseInputValues = (input) =>
       input.split(/[\s+]+/).map((value) => value.trim());
 
-    const mtnValues = selectedNetwork.includes("MTN Aviator")
+    const mtnValues = selectedNetwork.includes("MTN Normal")
       ? parseInputValues(mtnInputValue)
       : [];
     const mtnExpressValues = selectedNetwork.includes("MTN Express")
@@ -67,7 +67,7 @@ const AllCalculator = ({
     ];
     const packs = gigFormatter(combinedValues);
 
-    const mtnPriceList = selectedNetwork.includes("MTN Aviator")
+    const mtnPriceList = selectedNetwork.includes("MTN Normal")
       ? amounts(mtnPrices, mtnValues)
       : [];
     const mtnExpressPriceList = selectedNetwork.includes("MTN Express")
@@ -139,7 +139,7 @@ const AllCalculator = ({
     const parseInputValues = (input) =>
       input.split(/[\s+]+/).map((value) => value.trim());
 
-    const mtnValues = selectedNetwork.includes("MTN Aviator")
+    const mtnValues = selectedNetwork.includes("MTN Normal")
       ? parseInputValues(mtnInputValue)
       : [];
     const mtnExpressValues = selectedNetwork.includes("MTN Express")
@@ -163,7 +163,7 @@ const AllCalculator = ({
     ];
     const packs = gigFormatter(combinedValues);
 
-    const mtnPriceList = selectedNetwork.includes("MTN Aviator")
+    const mtnPriceList = selectedNetwork.includes("MTN Normal")
       ? amounts(mtnPrices, mtnValues)
       : [];
     const mtnExpressPriceList = selectedNetwork.includes("MTN Express")
@@ -222,7 +222,7 @@ const AllCalculator = ({
                   + ]
                 </p>
               )}
-              {selectedNetwork.includes("MTN Aviator") && (
+              {selectedNetwork.includes("MTN Normal") && (
                 <AllInput
                   placeholder="10 + 7 9 + 6 4"
                   id="mtnInput"

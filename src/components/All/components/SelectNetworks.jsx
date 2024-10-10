@@ -2,7 +2,7 @@ import React from "react";
 
 const NetworkSelect = ({ selectedNetwork = [], handleNetworkChange }) => {
   const networks = [
-    "MTN Aviator",
+    "MTN Normal",
     "MTN Express",
     "AirtelTigo",
     "Vodafone",
